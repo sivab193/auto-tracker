@@ -1,0 +1,25 @@
+[project]
+name = "autotracker-backend"
+version = "0.1.0"
+description = "AutoTracker — automobile document & service management API"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "B008",   # FastAPI uses function calls (Depends/File/Form) in defaults
+    "UP042",  # `str, Enum` mixin is intentional (readable JSON/DB values)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "E501"]

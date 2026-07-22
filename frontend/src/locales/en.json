@@ -1,0 +1,14 @@
+{
+  "app.name": "AutoTracker",
+  "nav.dashboard": "Dashboard",
+  "nav.vehicles": "Vehicles",
+  "nav.alerts": "Alerts",
+  "nav.family": "Family",
+  "nav.settings": "Settings",
+  "vehicles.add": "Add vehicle",
+  "documents.upload": "Upload document",
+  "documents.ocr": "Extract with OCR",
+  "alerts.checkNow": "Check expiries now",
+  "family.new": "New family",
+  "family.join": "Join with code"
+}

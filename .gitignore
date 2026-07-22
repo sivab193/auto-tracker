@@ -1,0 +1,48 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+*.tsbuildinfo
+frontend/coverage/
+
+# ---- Data / runtime ----
+*.db
+*.sqlite
+*.sqlite3
+data/
+storage/
+minio-data/
+uploads/
+*.log
+
+# ---- Secrets / env ----
+.env
+.env.*
+!.env.example
+
+# ---- Editors / OS ----
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# ---- Claude ----
+.claude/settings.local.json

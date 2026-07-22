@@ -1,0 +1,14 @@
+{
+  "app.name": "ऑटोट्रैकर",
+  "nav.dashboard": "डैशबोर्ड",
+  "nav.vehicles": "वाहन",
+  "nav.alerts": "अलर्ट",
+  "nav.family": "परिवार",
+  "nav.settings": "सेटिंग्स",
+  "vehicles.add": "वाहन जोड़ें",
+  "documents.upload": "दस्तावेज़ अपलोड करें",
+  "documents.ocr": "OCR से निकालें",
+  "alerts.checkNow": "समाप्ति अभी जांचें",
+  "family.new": "नया परिवार",
+  "family.join": "कोड से जुड़ें"
+}

@@ -1,0 +1,81 @@
+# ============================================================================
+# AutoTracker — full stack orchestration
+#
+#   docker compose up --build
+#
+# Services:
+#   backend  — FastAPI API + scheduler + Telegram bot (port 8000)
+#   frontend — React app served by nginx (port 3000)
+#   minio    — S3-compatible object storage (console on 9001)
+#   createbuckets — one-shot job that provisions the MinIO bucket
+# ============================================================================
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      # Inside the compose network the DB & storage live on named volumes.
+      DATABASE_URL: sqlite:////data/autotracker.db
+      LOCAL_STORAGE_DIR: /data/storage
+      S3_ENDPOINT: minio:9000
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_data:/data
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Empty → SPA uses relative /api, which nginx proxies to the backend
+        # (no CORS needed). Set a full URL only for split-host deployments.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${S3_ACCESS_KEY:-minioadmin} ${S3_SECRET_KEY:-minioadmin};
+      mc mb --ignore-existing local/${S3_BUCKET:-autotracker};
+      mc anonymous set none local/${S3_BUCKET:-autotracker};
+      echo 'bucket ready';
+      exit 0;
+      "
+
+volumes:
+  backend_data:
+  minio_data:
