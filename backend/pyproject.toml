@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]           # make `app` importable when running bare `pytest`
 addopts = "-q"
 filterwarnings = ["ignore::DeprecationWarning"]
 
