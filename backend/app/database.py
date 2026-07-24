@@ -17,6 +17,13 @@ class Base(DeclarativeBase):
 def _make_engine():
     url = settings.database_url
     connect_args: dict = {}
+    if url.startswith("sqlite") and settings.serverless:
+        # Serverless filesystems are read-only (and per-instance), so a file
+        # SQLite DB would either fail to open or silently lose every write.
+        raise RuntimeError(
+            "SQLite is not usable in serverless mode — set DATABASE_URL to a "
+            "Postgres connection string (e.g. postgresql+psycopg://user:pass@host/db)."
+        )
     if url.startswith("sqlite"):
         # Ensure the parent directory for a file-based SQLite DB exists.
         prefix = "sqlite:///"

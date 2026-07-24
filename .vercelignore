@@ -1,0 +1,14 @@
+backend/.venv
+backend/data
+backend/tests
+backend/Dockerfile
+backend/requirements-dev.txt
+frontend/Dockerfile
+frontend/nginx.conf
+frontend/dist
+node_modules
+docker-compose.yml
+docs
+__pycache__
+.pytest_cache
+.ruff_cache

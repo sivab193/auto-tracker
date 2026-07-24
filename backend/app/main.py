@@ -34,12 +34,16 @@ logger = logging.getLogger("autotracker")
 async def lifespan(app: FastAPI):
     logger.info("starting %s v%s (env=%s)", settings.app_name, __version__, settings.environment)
     init_db()
-    scheduler.start()
-    telegram_bot.run_in_thread()
+    if settings.serverless:
+        logger.info("serverless mode: scheduler and telegram polling disabled")
+    else:
+        scheduler.start()
+        telegram_bot.run_in_thread()
     try:
         yield
     finally:
-        scheduler.shutdown()
+        if not settings.serverless:
+            scheduler.shutdown()
         logger.info("shutdown complete")
 
 

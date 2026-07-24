@@ -136,8 +136,24 @@ def get_storage() -> StorageBackend:
         except Exception as exc:  # noqa: BLE001
             logger.warning("MinIO unavailable (%s); falling back to local storage", exc)
 
-    _backend = LocalStorage(settings.local_storage_dir)
-    logger.info("storage backend: local (%s)", settings.local_storage_dir)
+    root = settings.local_storage_dir
+    try:
+        _backend = LocalStorage(root)
+    except OSError as exc:
+        # Read-only filesystem (serverless). /tmp is writable but per-instance
+        # and ephemeral — uploads survive only until the container is recycled.
+        import tempfile
+
+        root = os.path.join(tempfile.gettempdir(), "autotracker-storage")
+        logger.warning(
+            "local storage dir %s not writable (%s); falling back to %s — "
+            "configure S3-compatible storage for durable uploads",
+            settings.local_storage_dir,
+            exc,
+            root,
+        )
+        _backend = LocalStorage(root)
+    logger.info("storage backend: local (%s)", root)
     return _backend
 
 

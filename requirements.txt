@@ -1,0 +1,33 @@
+# Dependency set for the Vercel Python function (api/index.py).
+#
+# Deliberately a subset of backend/requirements.txt: uvicorn (Vercel supplies
+# the ASGI server), APScheduler, python-telegram-bot and the OCR stack are all
+# imported lazily by the app and degrade to no-ops, so they are omitted to keep
+# the bundle inside the serverless size limit. Keep versions in sync with
+# backend/requirements.txt.
+#
+# For local dev / Docker / Render use backend/requirements.txt instead.
+
+# --- Web framework ---
+fastapi==0.115.6
+python-multipart==0.0.20
+email-validator==2.2.0
+
+# --- Config / settings ---
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# --- Database (Postgres only; SQLite has no writable disk on Vercel) ---
+SQLAlchemy==2.0.36
+psycopg[binary]==3.2.13   # 3.2.3 has no wheels for Python 3.13+
+
+# --- Auth ---
+passlib==1.7.4
+bcrypt<4.1
+PyJWT==2.10.1
+
+# --- Object storage (S3 / R2 / MinIO-compatible) ---
+minio==7.2.13
+
+# --- HTTP client (Telegram push notifications) ---
+httpx==0.28.1

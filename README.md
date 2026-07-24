@@ -157,6 +157,54 @@ Highlights:
 
 ---
 
+## ▲ Deploying to Vercel
+
+One Vercel project serves both halves: the Vite SPA as static output, and the
+FastAPI app as a Python function (`api/index.py`) that `vercel.json` routes
+`/api/*` and `/health` to. Import the repo, leave the root directory as `./`,
+and Vercel picks up [`vercel.json`](vercel.json) — no dashboard build settings
+needed.
+
+Serverless constraints, and what they mean here:
+
+| Constraint                       | Consequence                                                                 |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| Read-only filesystem outside `/tmp` | SQLite is refused — `DATABASE_URL` **must** be Postgres (Neon/Supabase/…).   |
+| No persistent disk               | Set `STORAGE_BACKEND=minio` against real S3/R2; the local fallback writes to `/tmp` and loses uploads when the instance recycles. |
+| No long-lived process            | `api/index.py` sets `SERVERLESS=true`, which disables the APScheduler sweep and the Telegram polling thread. |
+| No `tesseract` binary            | Set `OCR_ENABLED=false`; uploads still work, fields are entered manually.    |
+
+Required environment variables (Project → Settings → Environment Variables):
+
+```
+DATABASE_URL=postgresql+psycopg://user:pass@host/db?sslmode=require
+SECRET_KEY=<long random string>
+ENVIRONMENT=production
+STORAGE_BACKEND=minio          # S3-compatible; see S3_* below
+S3_ENDPOINT=s3.amazonaws.com   # or <account>.r2.cloudflarestorage.com
+S3_ACCESS_KEY=…
+S3_SECRET_KEY=…
+S3_BUCKET=autotracker
+S3_SECURE=true
+OCR_ENABLED=false
+```
+
+The function installs [`requirements.txt`](requirements.txt) at the repo root —
+a trimmed subset of `backend/requirements.txt` (no uvicorn/APScheduler/Telegram/
+OCR, all of which the app imports lazily) that keeps the bundle small. Keep the
+two files' version pins in sync.
+
+To run the alert sweep on Vercel instead of APScheduler, add a
+[cron](https://vercel.com/docs/cron-jobs) hitting an endpoint that calls
+`app.services.alerts.run_sweep`.
+
+**Prefer a long-lived host?** The [`Dockerfile`](backend/Dockerfile) and
+[`Procfile`](backend/Procfile) deploy unchanged to Render/Railway/Fly, where
+SQLite, OCR, the scheduler and the bot all work. Point the SPA at it with
+`VITE_API_BASE_URL` at build time.
+
+---
+
 ## 🤖 Telegram bot
 
 1. Create a bot with [@BotFather](https://t.me/BotFather) and copy the token.

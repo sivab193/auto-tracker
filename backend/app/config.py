@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     app_name: str = "AutoTracker"
     environment: str = "development"
     log_level: str = "INFO"
+    # Set by the Vercel entrypoint (api/index.py). Disables anything that needs
+    # a long-lived process: the alert scheduler and the Telegram polling thread.
+    serverless: bool = False
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
 
     # ---- Auth ----
